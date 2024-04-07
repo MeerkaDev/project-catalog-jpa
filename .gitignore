@@ -1,3 +1,4 @@
 .idea/
 *.iml
 target/
+src/main/java/meerkated/meerkated_jpa/JpaApplication.java
