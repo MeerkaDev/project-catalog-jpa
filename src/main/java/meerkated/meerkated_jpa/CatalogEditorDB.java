@@ -2,6 +2,7 @@ package meerkated.meerkated_jpa;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.TypedQuery;
 import meerkated.meerkated_jpa.entity.Category;
 import meerkated.meerkated_jpa.entity.Product;
 import meerkated.meerkated_jpa.entity.SpecCategory;
@@ -139,6 +140,55 @@ public class CatalogEditorDB {
                 manager.remove(vs);
             }
             manager.remove(product);
+        
+            manager.getTransaction().commit();
+        } catch (Exception e) {
+            manager.getTransaction().rollback();
+            throw new RuntimeException(e);
+        }
+        manager.close();
+    }
+    
+    public static void CreateCategory(Scanner scanner, EntityManagerFactory factory) {
+        EntityManager manager = factory.createEntityManager();
+    
+        TypedQuery<Category> categoryTypedQuery = manager.createQuery(
+            "select c from Category c where c.name = ?1", Category.class
+        );
+    
+        String nameIn = "";
+        while (true) {
+            System.out.print("Введите название категории: ");
+            nameIn = scanner.nextLine();
+        
+            categoryTypedQuery.setParameter(1, nameIn);
+        
+            List<Category> categories = categoryTypedQuery.getResultList();
+        
+            if (categories.isEmpty()) {
+                break;
+            } else {
+                System.out.println("Категория с таким название уже существует, введите другую!");
+            }
+        }
+    
+        System.out.print("Введите характеристики категории: ");
+        String[] specsIn = scanner.nextLine().split(",");
+    
+    
+        try {
+            manager.getTransaction().begin();
+        
+            Category category = new Category();
+            category.setName(nameIn);
+            manager.persist(category);
+        
+            for (String spec : specsIn) {
+                SpecCategory specCategory = new SpecCategory();
+                specCategory.setName(spec);
+                specCategory.setCategory(category);
+                manager.persist(specCategory);
+            }
         
             manager.getTransaction().commit();
         } catch (Exception e) {

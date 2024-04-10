@@ -24,6 +24,7 @@ public class ApplicationMain {
                 - Создать товар [1]
                 - Изменить товар [2]
                 - Удалить товар [3]
+                - Создать категорию товаров [4]
                 - Закрыть приложение [0]
                 """);
             
@@ -40,6 +41,9 @@ public class ApplicationMain {
                             break;
                         case 3:
                             CatalogEditorDB.DeleteProduct(scanner, factory);
+                            break;
+                        case 4:
+                            CatalogEditorDB.CreateCategory(scanner, factory);
                             break;
                         case 0:
                             scanner.close();
