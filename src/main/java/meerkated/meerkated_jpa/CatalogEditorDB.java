@@ -14,7 +14,7 @@ import java.util.Scanner;
 public class CatalogEditorDB {
     
     // Создание товара
-    public static void CreateProduct(Scanner scanner, EntityManagerFactory factory) {
+    public static void createProduct(Scanner scanner, EntityManagerFactory factory) {
         EntityManager manager = factory.createEntityManager();
         System.out.print("Введите название товара: ");
         String nameIn = scanner.nextLine();
@@ -56,37 +56,38 @@ public class CatalogEditorDB {
         } catch (Exception e) {
             manager.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            manager.close();
         }
-        manager.close();
     }
     
     // Редактирование товара
-    public static void UpdateProduct(Scanner scanner, EntityManagerFactory factory) {
+    public static void updateProduct(Scanner scanner, EntityManagerFactory factory) {
         EntityManager manager = factory.createEntityManager();
         System.out.print("Введите ID изменяемого товара: ");
         Long idIns = Long.valueOf(scanner.nextLine());
-    
+        
         try {
             manager.getTransaction().begin();
-        
+            
             Product product = manager.find(Product.class, idIns);
-        
+            
             List<SpecCategory> specsOfCategory = product.getCategory().getSpecCategories();
-        
+            
             System.out.println("Не вводите значение и нажмите Enter," +
                 " если не хотите вносить изменение в текущей информации о товаре");
-        
+            
             System.out.print("Введите новое название для товара "
                 + product.getName() + ": ");
             String NameNew = scanner.nextLine();
             if (!NameNew.isEmpty()) {
                 product.setName(NameNew);
             }
-        
+            
             while (true) {
                 System.out.print("Введите новую цену для товара "
                     + product.getName() + ": ");
-            
+                
                 String priceNew = scanner.nextLine();
                 if (!priceNew.isEmpty()) {
                     try {
@@ -97,7 +98,7 @@ public class CatalogEditorDB {
                     }
                 }
             }
-        
+            
             manager.persist(product);
             for (SpecCategory specCategory : specsOfCategory) {
                 System.out.print("Введите значение по характеристике - " +
@@ -106,7 +107,7 @@ public class CatalogEditorDB {
                 if (!value.isEmpty()) {
                     List<ValueSpec> valueSpecs = specCategory.getValueSpecs();
                     for (ValueSpec vp : valueSpecs) {
-                        if(vp.getProduct().equals(product) &&
+                        if (vp.getProduct().equals(product) &&
                             vp.getSpecCategory().equals(specCategory)) {
                             vp.setValue(value);
                             manager.persist(vp);
@@ -115,86 +116,90 @@ public class CatalogEditorDB {
                     }
                 }
             }
-        
+            
             manager.getTransaction().commit();
         } catch (Exception e) {
             manager.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            manager.close();
         }
-        manager.close();
     }
     
-    // Удалеине товара
-    public static void DeleteProduct(Scanner scanner, EntityManagerFactory factory) {
+    // Удаление товара
+    public static void deleteProduct(Scanner scanner, EntityManagerFactory factory) {
         EntityManager manager = factory.createEntityManager();
         System.out.print("Введите ID удаляемого товара: ");
-    
+        
         Long idIns = Long.valueOf(scanner.nextLine());
-    
+        
         try {
             manager.getTransaction().begin();
-        
+            
             Product product = manager.find(Product.class, idIns);
             List<ValueSpec> valueSpecs = product.getValueSpecs();
             for (ValueSpec vs : valueSpecs) {
                 manager.remove(vs);
             }
             manager.remove(product);
-        
+            
             manager.getTransaction().commit();
         } catch (Exception e) {
             manager.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            manager.close();
         }
-        manager.close();
     }
     
-    public static void CreateCategory(Scanner scanner, EntityManagerFactory factory) {
+    // Создание категории
+    public static void createCategory(Scanner scanner, EntityManagerFactory factory) {
         EntityManager manager = factory.createEntityManager();
-    
+        
         TypedQuery<Category> categoryTypedQuery = manager.createQuery(
             "select c from Category c where c.name = ?1", Category.class
         );
-    
+        
         String nameIn = "";
         while (true) {
             System.out.print("Введите название категории: ");
             nameIn = scanner.nextLine();
-        
+            
             categoryTypedQuery.setParameter(1, nameIn);
-        
+            
             List<Category> categories = categoryTypedQuery.getResultList();
-        
+            
             if (categories.isEmpty()) {
                 break;
             } else {
                 System.out.println("Категория с таким название уже существует, введите другую!");
             }
         }
-    
+        
         System.out.print("Введите характеристики категории: ");
         String[] specsIn = scanner.nextLine().split(",");
-    
-    
+        
+        
         try {
             manager.getTransaction().begin();
-        
+            
             Category category = new Category();
             category.setName(nameIn);
             manager.persist(category);
-        
+            
             for (String spec : specsIn) {
                 SpecCategory specCategory = new SpecCategory();
                 specCategory.setName(spec);
                 specCategory.setCategory(category);
                 manager.persist(specCategory);
             }
-        
+            
             manager.getTransaction().commit();
         } catch (Exception e) {
             manager.getTransaction().rollback();
             throw new RuntimeException(e);
+        } finally {
+            manager.close();
         }
-        manager.close();
     }
 }

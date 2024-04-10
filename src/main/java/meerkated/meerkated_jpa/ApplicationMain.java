@@ -34,16 +34,16 @@ public class ApplicationMain {
                 try {
                     switch (Integer.parseInt(command)) {
                         case 1:
-                            CatalogEditorDB.CreateProduct(scanner, factory);
+                            CatalogEditorDB.createProduct(scanner, factory);
                             break;
                         case 2:
-                            CatalogEditorDB.UpdateProduct(scanner, factory);
+                            CatalogEditorDB.updateProduct(scanner, factory);
                             break;
                         case 3:
-                            CatalogEditorDB.DeleteProduct(scanner, factory);
+                            CatalogEditorDB.deleteProduct(scanner, factory);
                             break;
                         case 4:
-                            CatalogEditorDB.CreateCategory(scanner, factory);
+                            CatalogEditorDB.createCategory(scanner, factory);
                             break;
                         case 0:
                             scanner.close();
